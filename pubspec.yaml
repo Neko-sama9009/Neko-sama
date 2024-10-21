@@ -1,0 +1,36 @@
+name: pageview
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.1.0
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^1.0.0
+  dart_format: ^1.1.20
+  another_flushbar: ^1.12.30
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+
+  assets:
+    - assets/BackGround/Empty.png
+    - assets/Icon/Frame 12255.png
+    - assets/Icon/Home Indicator.png
+    - assets/BackGround/Thông tin 1.png
+    - assets/Icon/Frame 12255 (1).png
+    - assets/BackGround/camera.png
+    - assets/Icon/Frame 12255 (2).png
+    - assets/BackGround/may-tinh-bo-tui-casio-fx-570vn-plus-avar.jpg
