@@ -8,193 +8,149 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _controller = TextEditingController();
-  String _result = '';
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController inputController = TextEditingController();
 
-  void _addNumber(String number) {
-    setState(() {
-      _controller.text += number;
-    });
-  }
+  String reversedString = '';
+  String formattedPhone = '';
+  bool isPalindrome = false;
+  bool containsFlutter = false;
+  String? phoneError;
+  String? passwordError;
+  String? confirmPasswordError;
+  bool success = false;
 
-  void _clear() {
+  void validate() {
     setState(() {
-      _controller.text = '';
-      _result = '';
-    });
-  }
+      phoneError = null;
+      passwordError = null;
+      confirmPasswordError = null;
+      success = false; // Reset success
+      formattedPhone = ''; // Reset formattedPhone
 
-  void _delete() {
-    setState(() {
-      if (_controller.text.isNotEmpty) {
-        _controller.text = _controller.text.substring(0, _controller.text.length - 1);
+      // Check phoneNumber
+      String phone = phoneController.text;
+      if (phone.length != 10 || !phone.startsWith('0')) {
+        phoneError = 'Số điện thoại không hợp lệ.';
+      } else {
+        formattedPhone = '+84${phone.substring(1)}'; // Cập nhật biến formattedPhone
+      }
+
+      // Check password
+      String password = passwordController.text;
+      if (password.length < 6 || password.length > 20 || password.trim().isEmpty
+          || !RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)
+          || !RegExp(r'[A-Z]').hasMatch(password)
+          || !RegExp(r'\d').hasMatch(password)) {
+        passwordError = 'Mật khẩu không hợp lệ. Cần có ít nhất 6 ký tự, 1 chữ hoa, 1 số và 1 ký tự đặc biệt.';
+      }
+
+      // Check confirmPassword
+      String confirmPassword = confirmPasswordController.text;
+      if (password != confirmPassword) {
+        confirmPasswordError = 'Mật khẩu không trùng khớp.';
+      }
+
+      // Success
+      if (phoneError == null && passwordError == null && confirmPasswordError == null) {
+        success = true;
       }
     });
   }
 
-  void _calculate() {
-    String textInTextField = _controller.text;
-    print('Input: $textInTextField');
-    List<String> parts = textInTextField.split(RegExp(r'(?<=[\+\-\x\:\~/\%])|(?=[\+\-\x\:\~/\%])'));
-    for (int i = 1; i < parts.length; i++) {
-      if (parts[i - 1] == '~' && parts[i] == '/') {
-        parts[i - 1] = '~/';
-        parts.removeAt(i);
-        i--;
-      }
-    }
-    if (parts.length == 3) {
-      double num1 = double.tryParse(parts[0]) ?? 0;
-      String operator = parts[1]; // Lấy toán tử
-      double num2 = double.tryParse(parts[2]) ?? 0;
-      if (operator == ':' && num2 == 0) {
-        setState(() {
-          _result = 'Không thể chia cho 0!';
-        });
-        return;
-      }
-      double result = _performOperation(num1, operator, num2);
-      setState(() {
-        // Kiểm tra xem kết quả có phải là số nguyên không
-        _result = result % 1 == 0 ? result.toInt().toString() : result.toString();
-      });
-    } else {
-      setState(() {
-        _result = 'Biểu thức không hợp lệ!';
-      });
-    }
-  }
+  void checkString() {
+    String input = inputController.text;
 
-  double _performOperation(double num1, String operator, double num2) {
-    switch (operator) {
-      case '%':
-        return num1 % num2;
-      case '~/':
-        if (num2 == 0) throw Exception('Chia cho 0!');
-        return (num1 ~/ num2).toDouble();
-      case '+':
-        return num1 + num2;
-      case '-':
-        return num1 - num2;
-      case 'x':
-        return num1 * num2;
-      case ':':
-        if (num2 == 0) throw Exception('Chia cho 0!');
-        return num1 / num2;
-      default:
-        throw Exception('Phép toán không hợp lệ!');
-    }
+    // Đảo ngược chuỗi
+    reversedString = input.split('').reversed.join();
+
+    // Kiểm tra chuỗi đối xứng
+    isPalindrome = input == reversedString;
+
+    // Kiểm tra chuỗi có chứa "Flutter"
+    containsFlutter = input.contains('Flutter');
+
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            top: 50, left: 0, right: 0, bottom: 0,
-            child: Image.asset('assets/BackGround/may-tinh-bo-tui-casio-fx-570vn-plus-avar.jpg', fit: BoxFit.cover,),
-          ),
-          Positioned(
-            width: 265, height: 110,
-            top: 198, left: 60,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey,
-              ),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _controller,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Bài 1:', style: TextStyle(
+                    fontSize: 40, fontWeight: FontWeight.w500, color: Colors.red
+                )),
+                TextField(
+                  controller: phoneController,
+                  decoration: InputDecoration(
+                    labelText: 'Số Điện Thoại',
+                    errorText: phoneError,
                   ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(_result),
-                      SizedBox(width: 10,)
-                    ],
-                  )
-                ],
-              ),
+                  keyboardType: TextInputType.phone,
+                ),
+                if (formattedPhone.isNotEmpty) // hiển thị số đầu +84 nếu đúng định dạng
+                  Text('$formattedPhone'),
+                TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Mật Khẩu',
+                    errorText: passwordError,
+                  ),
+                  obscureText: true,
+                ),
+                TextField(
+                  controller: confirmPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'Xác Nhận Mật Khẩu',
+                    errorText: confirmPasswordError,
+                  ),
+                  obscureText: true,
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: validate,
+                      child: Text('Gửi'),
+                    ),
+                    SizedBox(width: 40),
+                    if (success) // Hiển thị thông báo khi thành công
+                      Text('Thông tin hợp lệ', style: TextStyle(color: Colors.green)),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text('Bài 2:', style: TextStyle(
+                    fontSize: 40, fontWeight: FontWeight.w500, color: Colors.red
+                )),
+                SizedBox(height: 10),
+                TextField(
+                  controller: inputController,
+                  decoration: InputDecoration(
+                    labelText: 'Nhập chuỗi',
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: checkString,
+                  child: Text('Kiểm tra'),
+                ),
+                SizedBox(height: 20),
+                Text('Chuỗi đảo ngược: $reversedString'),
+                Text('Chuỗi đối xứng: $isPalindrome'),
+                Text('Chứa "Flutter": $containsFlutter'),
+              ],
             ),
           ),
-          Positioned(
-              width: 275, height: 180,
-              top: 566, left: 58,
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Button('7', () => _addNumber('7')),
-                          Button('8', () => _addNumber('8')),
-                          Button('9', () => _addNumber('9')),
-                          Button('Del', _delete),
-                          Button('AC', _clear),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Button('4', () => _addNumber('4')),
-                          Button('5', () => _addNumber('5')),
-                          Button('6', () => _addNumber('6')),
-                          Button('x', () => _addNumber('x')),
-                          Button(':', () => _addNumber(':')),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Button('1', () => _addNumber('1')),
-                          Button('2', () => _addNumber('2')),
-                          Button('3', () => _addNumber('3')),
-                          Button('+', () => _addNumber('+')),
-                          Button('-', () => _addNumber('-')),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Button('0', () => _addNumber('0')),
-                          Button('.', () => _addNumber('.')),
-                          Button('~/', () => _addNumber('~/')),
-                          Button('%', () => _addNumber('%')),
-                          Button('=', _calculate),
-                        ],
-                      )
-                    ],
-                  )
-              )
-          )
-        ],
+        ),
       ),
     );
   }
-}
-
-Widget Button(String title, VoidCallback onPressed) {
-  return GestureDetector(
-    onTap: onPressed,
-    child: Container(
-      margin: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
-      width: 40, height: 40,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(title, style: TextStyle(color: Colors.white)),
-      ),
-    ),
-  );
 }
